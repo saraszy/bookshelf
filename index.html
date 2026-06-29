@@ -12,7 +12,7 @@
     --border:#eee;
     --text:#0a0a0a;--text-2:#666;--text-3:#aaa;
     --accent:#111;
-    --bg:#f3f3f3;--bg-card:#fff;
+    --bg:#fff;--bg-card:#fff;
     --shadow:0 2px 12px rgba(0,0,0,.05);
     --shadow-lg:0 4px 24px rgba(0,0,0,.07);
   }
@@ -36,10 +36,16 @@
   tr:hover td{background:#fafafa;}
   .img-no{color:var(--text-3);text-align:center;font-size:11px;font-weight:400;}
 
+  /* === 表格单元格可点击跳转 === */
+  #fullView td:nth-child(2),#fullView td:nth-child(3){cursor:pointer;}
+  #fullView td:nth-child(2):hover,#fullView td:nth-child(3):hover{text-decoration:underline;}
+
   /* === 分类标签 — pill === */
   .cat-tag{display:inline-block;padding:2px 10px;border-radius:var(--r-pill);font-size:10px;font-weight:500;color:var(--text-2);background:#f0f0f0;white-space:nowrap;}
   .cat-历史,.cat-科技,.cat-技术,.cat-小说,.cat-经管,.cat-设计,.cat-哲学,.cat-心理学,.cat-计算机,.cat-文学,.cat-语言,.cat-教育,.cat-艺术,.cat-社会,.cat-政治,.cat-经济,.cat-科普,.cat-写作,.cat-医学,.cat-其他{background:#f0f0f0;color:var(--text-2);}
   .unclear{color:var(--text-3);}
+  /* 未校验行：左侧浅红标记 */
+  tr.unverified td:first-child{border-left:3px solid #e0c0c0;}
 
   /* === 速览区 === */
   .summary{background:var(--bg-card);padding:var(--sp3);border-radius:var(--r-lg);box-shadow:var(--shadow);margin-bottom:var(--sp2);}
@@ -94,9 +100,17 @@
   .toast{position:fixed;bottom:var(--sp3);left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:10px 24px;border-radius:var(--radius);font-size:12px;letter-spacing:.2px;z-index:300;animation:toastIn .2s ease;}
   @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(6px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 
-  /* === 视图 === */
-  .view{display:none;}
-  .view.active{display:block;}
+  /* === 视图 + 切换动画 === */
+  .view{display:none;opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
+  .view.active{display:block;opacity:1;transform:translateY(0);}
+  @keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .search-result-item{animation:fadeSlideIn .25s ease both;}
+  .search-result-item:nth-child(1){animation-delay:0s;}
+  .search-result-item:nth-child(2){animation-delay:.04s;}
+  .search-result-item:nth-child(3){animation-delay:.08s;}
+  .search-result-item:nth-child(4){animation-delay:.12s;}
+  .search-result-item:nth-child(5){animation-delay:.16s;}
+  .search-result-item:nth-child(n+6){animation-delay:.18s;}
 
   /* === 首页 === */
   #searchView{max-width:480px;margin:0 auto;padding:var(--sp5) var(--sp2) var(--sp3);}
@@ -105,14 +119,16 @@
   .home-header .sub{font-size:12px;color:var(--text-3);font-weight:400;}
 
   /* 统计数字卡片 */
-  .home-stats-row{display:flex;gap:var(--sp1);margin-bottom:var(--sp3);}
-  .home-stat{flex:1;text-align:center;background:var(--bg-card);border-radius:var(--r-lg);padding:var(--sp3) var(--sp1);box-shadow:var(--shadow);}
-  .home-stat .num{font-size:44px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-1.5px;}
-  .home-stat .label{font-size:11px;color:var(--text-3);margin-top:8px;font-weight:400;}
+  /* 统计小字行 */
+  .home-stats-row{display:flex;justify-content:center;gap:var(--sp2);margin-bottom:var(--sp1);flex-wrap:wrap;}
+  .home-stats-row span{font-size:11px;color:var(--text-3);}
+  .home-stats-row b{color:var(--text);font-weight:700;}
+  .home-stats-row .link{color:var(--text-3);cursor:pointer;text-decoration:underline;}
+  .home-stats-row .link:hover{color:var(--text);}
 
   .home-search-row{display:flex;gap:var(--sp1);margin-bottom:12px;}
-  .home-search-row input{flex:1;height:48px;padding:0 20px;border:none;border-radius:var(--r-pill);font-size:15px;outline:none;background:var(--bg-card);color:var(--text);box-shadow:var(--shadow);transition:box-shadow .15s;}
-  .home-search-row input:focus{box-shadow:var(--shadow-lg);}
+  .home-search-row input{flex:1;height:48px;padding:0 20px;border:1.5px solid #ccc;border-radius:var(--r-pill);font-size:15px;outline:none;background:var(--bg-card);color:var(--text);transition:border-color .15s;}
+  .home-search-row input:focus{border-color:#000;}
   .home-search-row .btn{height:48px;padding:0 24px;font-size:14px;}
 
   .home-actions{display:flex;gap:var(--sp1);margin-bottom:var(--sp3);}
@@ -129,6 +145,12 @@
   .search-empty{padding:var(--sp5) 0;color:var(--text-3);font-size:13px;text-align:center;}
   .results-wrap{margin-top:var(--sp2);}
 
+  /* === 图片灯箱 === */
+  .lightbox-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;overflow:auto;-webkit-overflow-scrolling:touch;}
+  .lightbox-overlay.active{display:flex;justify-content:center;align-items:flex-start;padding:60px var(--sp2) var(--sp2);}
+  .lightbox-overlay img{display:block;width:100%;max-width:none;object-fit:contain;}
+  .lightbox-close{position:fixed;top:var(--sp2);right:var(--sp2);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:2;padding:var(--sp1);line-height:1;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+
   /* === 完整视图 === */
   #fullView{padding-top:0;}
   #fullView .back-btn{display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;padding:var(--sp1) 0;margin-bottom:var(--sp1);letter-spacing:.2px;transition:color .12s;}
@@ -143,18 +165,38 @@
   @media(max-width:640px){
     body{padding:var(--sp1);}
     h2{margin:var(--sp3) 0 var(--sp1);}
-    table{display:block;overflow-x:auto;white-space:nowrap;}
+    table{display:block;overflow-x:auto;white-space:nowrap;table-layout:auto!important;}
+    /* 移动端列宽：书名列 160px，作者列 90px，备注列 180px */
+    #fullView td:nth-child(2){min-width:200px;max-width:240px;}
+    #fullView td:nth-child(3){min-width:90px;max-width:120px;}
+    #fullView td:nth-child(5){min-width:180px;max-width:280px;}
     th,td{padding:6px var(--sp1);}
     .summary-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
     .modal{padding:var(--sp2);margin:var(--sp1);width:auto;max-width:none;}
     .form-row{flex-direction:column;gap:0;}
     #searchView{padding:var(--sp2) var(--sp1);}
-    .home-stats-row{gap:var(--sp2);}
-    .home-stat .num{font-size:38px;}
-    .home-stat{padding:var(--sp2) var(--sp1);}
+    .home-stats-row{margin-bottom:var(--sp1);}
     .home-search-row input{font-size:14px;}
     #fullView .full-toolbar{flex-wrap:wrap;gap:var(--sp1);}
     #fullView .full-toolbar .btn{flex:1;}
+  }
+
+  /* ====== 暗色模式 ====== */
+  @media(prefers-color-scheme:dark){
+    :root{--border:#333;--border-dark:#555;--text:#eee;--text-2:#aaa;--text-3:#777;--accent:#fff;--bg:#111;--bg-card:#1a1a1a;--shadow:0 2px 12px rgba(0,0,0,.35);--shadow-lg:0 4px 24px rgba(0,0,0,.45);}
+    .btn-primary{background:#fff;color:#000;border-color:#fff;}.btn-primary:hover{background:#ddd;border-color:#ddd;}
+    .btn{background:#2a2a2a;color:#ddd;border-color:#444;}.btn:hover{background:#333;}
+    .btn-outline{background:var(--bg-card);border-color:#444;}
+    .home-search-row input{background:#1a1a1a;border-color:#333;color:#eee;}
+    table{background:var(--bg-card);}th{background:#222;border-bottom-color:#444;}
+    tr:hover td{background:#222;}td{border-bottom-color:#2a2a2a;}
+    .cat-tag,.cat-历史,.cat-科技,.cat-技术,.cat-小说,.cat-经管,.cat-设计,.cat-哲学,.cat-心理学,.cat-计算机,.cat-文学,.cat-语言,.cat-教育,.cat-艺术,.cat-社会,.cat-政治,.cat-经济,.cat-科普,.cat-写作,.cat-医学,.cat-其他{background:#2a2a2a;color:#aaa;}
+    .summary-grid a{background:#222;color:#aaa;}.summary-grid a:hover{background:#2a2a2a;color:#ddd;}
+    .lightbox-overlay{background:rgba(0,0,0,.95);}
+    .form-group input,.form-group select,.form-group textarea{background:#1a1a1a;border-color:#333;color:#eee;}
+    .upload-area{background:#1a1a1a;border-color:#444;}.upload-area:hover{background:#222;}
+    .stats{background:var(--bg-card);}
+    #detailEditForm{background:#222!important;}
   }
 </style>
 </head>
@@ -167,21 +209,87 @@
     <p class="sub">随时查找书架上的每一本书</p>
   </div>
   <div class="home-stats-row">
-    <div class="home-stat"><span class="num" id="cardTotal">53</span><span class="label">藏书总数</span></div>
-    <div class="home-stat"><span class="num" id="cardCats">20</span><span class="label">分类</span></div>
-    <div class="home-stat"><span class="num" id="cardSections">53</span><span class="label">书架分区</span></div>
+    <span style="cursor:pointer;" onclick="showFullView()">藏书 <b id="cardTotal" style="text-decoration:underline;">53</b> 本</span>
+    <span style="cursor:pointer;" onclick="showMonthNew()">本月新增 <b id="cardNewMonth" style="text-decoration:underline;">0</b></span>
+    <span><b id="cardCats">20</b> 个分类</span>
+    <span><b id="cardSections">53</b> 个书架分区 · </span>
+    <span class="link" onclick="exportData()">导出数据</span>
   </div>
   <div class="home-search-row">
     <input type="text" id="homeSearchInput" placeholder="书名 / 作者 / 分类…">
     <button class="btn btn-primary" onclick="openModal()">＋ 录入</button>
   </div>
-  <div class="home-actions">
-    <button class="btn btn-outline" onclick="showFullView()">查看全部书架 →</button>
-    <button class="btn btn-outline" onclick="exportData()">导出数据</button>
-  </div>
   <div id="searchResults" class="results-wrap" style="display:none;"></div>
-  <div id="searchEmpty" class="search-empty" style="display:none;">输入关键词开始搜索</div>
+  <div id="searchEmpty" class="search-empty" style="display:none;"></div>
   <div id="searchNoResult" class="search-empty" style="display:none;">没有找到匹配的书籍</div>
+</div>
+
+<!-- ====== 图片灯箱 ====== -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<!-- ====== 本月新增视图 ====== -->
+<div id="monthNewView" class="view" style="max-width:520px;margin:0 auto;padding:var(--sp3) var(--sp2);">
+  <button class="back-btn" onclick="showSearchView()" style="display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:var(--sp1) 0;margin-bottom:var(--sp2);">← 返回</button>
+  <h4 style="font-size:18px;font-weight:700;margin:0 0 var(--sp2);">本月新增</h4>
+  <div id="monthNewResults" class="results-wrap"></div>
+  <div id="monthNewEmpty" class="search-empty" style="display:none;">本月暂无新增书籍</div>
+</div>
+
+<!-- ====== 书籍详情页 ====== -->
+<div id="detailView" class="view" style="background:var(--bg);min-height:100vh;">
+  <!-- 顶部 Banner 图片区 -->
+  <div id="detailBanner" style="position:relative;height:45vh;min-height:280px;background:#1a1a1a;overflow:hidden;">
+    <img id="detailBannerImg" src="" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" alt="" onclick="openLightbox(this.src)">
+    <!-- 渐变遮罩 -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,rgba(0,0,0,.6),transparent);pointer-events:none;"></div>
+    <!-- 返回按钮 -->
+    <button onclick="history.back()" style="position:absolute;top:var(--sp1);left:var(--sp1);background:rgba(0,0,0,.4);border:none;color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);">←</button>
+    <!-- 图片计数 -->
+    <div id="detailImgCount" style="position:absolute;bottom:var(--sp2);right:var(--sp2);background:rgba(0,0,0,.4);color:#fff;padding:4px 12px;border-radius:var(--r-pill);font-size:11px;backdrop-filter:blur(4px);">1 / 3</div>
+  </div>
+  
+  <!-- 白色内容卡片 -->
+  <div style="position:relative;margin-top:-40px;background:var(--bg-card);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:var(--sp3) var(--sp2);min-height:55vh;">
+    <!-- 书名 -->
+    <h1 id="detailName" style="font-size:28px;font-weight:800;margin:0 0 var(--sp1);line-height:1.2;letter-spacing:-.5px;"></h1>
+    
+    <!-- 作者 + 分类 -->
+    <div id="detailMeta" style="font-size:14px;color:var(--text-2);margin-bottom:var(--sp2);"></div>
+    
+    <!-- 编辑按钮 -->
+    <button class="btn btn-outline" onclick="toggleDetailEdit()" style="height:36px;font-size:12px;margin-bottom:var(--sp3);">编辑信息</button>
+    
+    <!-- 编辑表单 -->
+    <div id="detailEditForm" style="display:none;margin-bottom:var(--sp3);padding:var(--sp2);background:#f8f8f8;border-radius:var(--r-md);">
+      <div class="form-group">
+        <label style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;">书名</label>
+        <input type="text" id="editName" style="height:40px;">
+      </div>
+      <div class="form-group">
+        <label style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;">作者</label>
+        <input type="text" id="editAuthor" style="height:40px;">
+      </div>
+      <div class="form-group">
+        <label style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;">简介</label>
+        <textarea id="editDesc" rows="4"></textarea>
+      </div>
+      <div style="display:flex;gap:var(--sp1);margin-top:var(--sp2);">
+        <button class="btn btn-outline" onclick="deleteDetailBook()" style="height:36px;font-size:12px;color:#d00;border-color:#d00;">删除</button>
+        <button class="btn btn-outline" onclick="toggleDetailEdit()" style="flex:1;height:36px;font-size:12px;">取消</button>
+        <button class="btn btn-primary" onclick="saveDetailEdit()" style="flex:1;height:36px;font-size:12px;">保存</button>
+      </div>
+    </div>
+    
+    <!-- 内容简介 -->
+    <div style="margin-bottom:var(--sp3);">
+      <h5 style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-3);letter-spacing:.5px;margin:0 0 var(--sp1);">内容简介</h5>
+      <p id="detailDesc" style="font-size:15px;color:var(--text);line-height:1.8;margin:0;"></p>
+      <a id="detailMoreLink" href="#" target="_blank" style="display:inline-block;margin-top:6px;font-size:13px;color:var(--text);text-decoration:underline;font-weight:500;">去豆瓣查看详细信息 →</a>
+    </div>
+  </div>
 </div>
 
 <!-- ====== 完整书架视图 ====== -->
@@ -189,6 +297,7 @@
   <div class="full-toolbar">
     <button class="back-btn" onclick="showSearchView()">← 返回</button>
     <span class="count"><b id="fullTitleCount">53</b> 本书</span>
+    <span style="font-size:10px;color:var(--text-3);">按住 ⌥ 点击书名标记已校验</span>
     <button class="btn btn-outline" onclick="exportData()">导出</button>
     <button class="btn btn-primary" onclick="openModal()">＋ 录入</button>
   </div>
@@ -1825,55 +1934,78 @@
 <div id="addedBooksSection" class="added-section" style="display:none;">
   <h2>新增录入</h2>
   <table id="addedBooksTable">
-    <tr><th>图号</th><th>书名</th><th>作者</th><th>分类</th><th>备注</th><th>操作</th></tr>
+    <tr><th>图号</th><th>书名</th><th>作者</th><th>分类</th><th>简介</th><th>操作</th></tr>
   </table>
+</div>
 </div>
 
 </div><!-- /#fullView -->
 
 <!-- ====== 录入新书模态框 ====== -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h3>录入新书</h3>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="bookName">书名 <span style="color:#c0392b">*</span></label>
-        <input type="text" id="bookName" placeholder="请输入书名" autofocus>
+  <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+    <!-- 初始上传界面 -->
+    <div id="addBookUploadView">
+      <div id="addBookPlus" onclick="openAddBookMenu()" style="width:120px;height:120px;margin:40px auto 16px;border:2px dashed #ccc;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:#aaa;">
+        <span style="font-size:48px;line-height:1;">＋</span>
       </div>
-      <div class="form-group">
-        <label for="bookAuthor">作者</label>
-        <input type="text" id="bookAuthor" placeholder="请输入作者">
+      <p style="font-size:14px;color:var(--text-2);margin:0 0 4px;">上传或拍照，自动识别书籍内容</p>
+      <p style="font-size:11px;color:var(--text-3);margin:0;">支持中英文书脊 OCR 识别</p>
+      <!-- 隐藏的菜单 -->
+      <div id="addBookMenu" style="display:none;margin-top:var(--sp2);">
+        <button class="btn btn-outline" onclick="pickFromLibrary()" style="width:100%;margin-bottom:8px;justify-content:center;">从相册上传</button>
+        <button class="btn btn-primary" onclick="takePhoto()" style="width:100%;justify-content:center;">拍照识别</button>
       </div>
+      <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleImageUpload(event)" style="display:none;">
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="bookCategory">分类</label>
-        <select id="bookCategory">
-          <option value="">请选择分类</option>
-          <option value="历史">历史</option><option value="科技">科技</option><option value="技术">技术</option>
-          <option value="小说">小说</option><option value="经管">经管</option><option value="设计">设计</option>
-          <option value="哲学">哲学</option><option value="心理学">心理学</option><option value="计算机">计算机</option>
-          <option value="文学">文学</option><option value="语言">语言</option><option value="教育">教育</option>
-          <option value="艺术">艺术</option><option value="社会">社会</option><option value="政治">政治</option>
-          <option value="经济">经济</option><option value="科普">科普</option><option value="写作">写作</option><option value="医学">医学</option><option value="其他">其他</option>
-        </select>
+    <!-- 编辑结果界面 -->
+    <div id="addBookEditView" style="display:none;text-align:left;">
+      <h3>录入新书</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>书名 <span style="color:#d00">*</span></label>
+          <input type="text" id="bookName" placeholder="识别结果...">
+        </div>
+        <div class="form-group">
+          <label>作者</label>
+          <input type="text" id="bookAuthor" placeholder="识别结果...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>分类</label>
+          <select id="bookCategory">
+            <option value="">请选择分类</option>
+            <option value="历史">历史</option><option value="科技">科技</option><option value="技术">技术</option>
+            <option value="小说">小说</option><option value="经管">经管</option><option value="设计">设计</option>
+            <option value="哲学">哲学</option><option value="心理学">心理学</option><option value="计算机">计算机</option>
+            <option value="文学">文学</option><option value="语言">语言</option><option value="教育">教育</option>
+            <option value="艺术">艺术</option><option value="社会">社会</option><option value="政治">政治</option>
+            <option value="经济">经济</option><option value="科普">科普</option><option value="写作">写作</option><option value="医学">医学</option><option value="其他">其他</option>
+          </select>
+        </div>
       </div>
       <div class="form-group">
-        <label for="bookRemark">备注</label>
-        <input type="text" id="bookRemark" placeholder="如版本、ISBN等">
+        <label>简介</label>
+        <textarea id="bookRemark" rows="3" placeholder="书籍内容简介..."></textarea>
       </div>
-    </div>
-    <!-- 拍照/上传图片识别 -->
-    <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
-      <input type="file" id="imageInput" accept="image/*" capture="environment" onchange="handleImageUpload(event)">
-      <span class="icon" style="font-size:24px;font-weight:100;">□</span>
-      <p>拍照或上传书脊图片自动识别书名和作者</p>
-      <p style="font-size:11px;color:#aaa;">点击此处选择图片</p>
-    </div>
-    <div class="ocr-status" id="ocrStatus">正在识别中，请稍候...</div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" id="saveBtn" onclick="saveBook()">保存录入</button>
+      <div class="ocr-status" id="ocrStatus" style="font-size:12px;color:var(--text-3);text-align:center;margin-top:4px;display:none;">识别中...</div>
+      <div class="form-group" style="margin-top:var(--sp1);">
+        <label>封面（可选）</label>
+        <div style="display:flex;align-items:center;gap:var(--sp1);">
+          <div id="coverPreview" style="width:72px;height:96px;border-radius:6px;border:1px dashed var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;flex-shrink:0;" onclick="document.getElementById('coverInput').click()">
+            <span style="font-size:11px;color:var(--text-3);">+</span>
+            <img id="coverPreviewImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
+          </div>
+          <input type="file" id="coverInput" accept="image/*" capture="environment" onchange="handleCoverUpload(event)" style="display:none;">
+          <span style="font-size:11px;color:var(--text-3);">点击方框选择<br>或拍摄封面照片</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveBook()">保存录入</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1890,7 +2022,9 @@ window.showFullView = function() {
 
 window.showSearchView = function() {
   document.getElementById('fullView').classList.remove('active');
+  document.getElementById('detailView').classList.remove('active');
   document.getElementById('searchView').classList.add('active');
+  history.replaceState(null, '', location.pathname);
   window.scrollTo(0, 0);
   document.getElementById('homeSearchInput').focus();
 };
@@ -1919,6 +2053,276 @@ function countCategories() {
   });
   return Object.keys(cats).length;
 }
+
+// ====== 书籍详情页 ======
+function renderDetail(name, author, category) {
+  // 从 DOM 中找到该书所有出现的图号
+  var imgNos = [];
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var n = (cells[1].textContent || '').trim();
+    var a = (cells[2].textContent || '').trim();
+    if (n === name && a === author) {
+      var ino = (cells[0].textContent || '').trim();
+      if (ino && imgNos.indexOf(ino) === -1) imgNos.push(ino);
+    }
+  });
+
+  currentDetailBook = { name: name, author: author, category: category };
+  document.getElementById('detailName').textContent = name;
+  var meta = '';
+  if (author) meta += '作者：' + esc(author) + '　';
+  if (category) meta += '<span class="cat-tag cat-' + category + '">' + category + '</span>';
+  document.getElementById('detailMeta').innerHTML = meta;
+
+  // 预填充编辑表单 + 隐藏编辑区
+  document.getElementById('editName').value = name;
+  document.getElementById('editAuthor').value = author || '';
+  document.getElementById('detailEditForm').style.display = 'none';
+
+  // Banner 大图：取第一个来源照片
+  var firstImg = imgNos.length > 0 ? ('图片/' + imgNos[0] + '.jpg') : '';
+  document.getElementById('detailBannerImg').src = firstImg;
+  document.getElementById('detailImgCount').textContent = imgNos.length > 0 ? ('图片来源：' + imgNos[0] + '.jpg') : '';
+
+  // 内容简介 + 查看更多链接到豆瓣
+  var desc = BOOK_DESC[name] || '';
+  var doubanUrl = 'https://search.douban.com/book/subject_search?search_text=' + encodeURIComponent(name);
+  document.getElementById('detailMoreLink').href = doubanUrl;
+  
+  // 截断简介：最多显示~150字
+  if (desc && desc.length > 150) {
+    desc = desc.slice(0, 150) + '...';
+    document.getElementById('detailMoreLink').style.display = 'inline-block';
+  } else {
+    document.getElementById('detailMoreLink').style.display = 'inline-block';
+  }
+  document.getElementById('detailDesc').textContent = desc || '暂无简介，你可以点击下方「编辑信息」添加。';
+  document.getElementById('editDesc').value = BOOK_DESC[name] || '';
+
+  // 切换视图
+  document.getElementById('searchView').classList.remove('active');
+  document.getElementById('fullView').classList.remove('active');
+  document.getElementById('detailView').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ====== 详情页删除书籍 ======
+window.deleteDetailBook = function() {
+  var book = currentDetailBook;
+  if (!book || !book.name) return;
+  if (!confirm('确定删除《' + book.name + '》及其所有关联记录？此操作不可撤销。')) return;
+  
+  // 删除原始表格中所有匹配行
+  var count = 0;
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var n = (cells[1].textContent || '').trim();
+    var a = (cells[2].textContent || '').trim();
+    if (n === book.name && a === book.author) {
+      row.remove();
+      count++;
+    }
+  });
+  
+  // 删除自定义录入中的匹配项
+  var books = getCustomBooks();
+  var filtered = books.filter(function(b) { return b.name !== book.name || b.author !== book.author; });
+  if (filtered.length < books.length) {
+    saveCustomBooks(filtered);
+    count += (books.length - filtered.length);
+  }
+  
+  // 清理 BOOK_DESC
+  delete BOOK_DESC[book.name];
+  
+  // 返回首页
+  showSearchView();
+  allBooksCache = null;
+  updateCounts();
+  renderAll();
+  showToast('已删除《' + book.name + '》（' + count + ' 条记录）');
+};
+
+// ====== Banner 缩略图切换 ======
+window.switchBannerImg = function(idx, src) {
+  document.getElementById('detailBannerImg').src = src;
+  document.getElementById('detailImgCount').textContent = (idx+1) + ' / ' + (window._detailImgs ? window._detailImgs.length : 1);
+  // 高亮当前缩略图
+  var thumbs = document.querySelectorAll('#detailThumbs > div');
+  thumbs.forEach(function(t, i) { t.style.borderColor = (i === idx ? 'var(--accent)' : 'transparent'); });
+};
+
+// ====== 详情页编辑功能 ======
+window.toggleDetailEdit = function() {
+  var form = document.getElementById('detailEditForm');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+};
+
+window.saveDetailEdit = function() {
+  var newName = document.getElementById('editName').value.trim();
+  var newAuthor = document.getElementById('editAuthor').value.trim();
+  var newDesc = document.getElementById('editDesc').value.trim();
+  
+  if (!newName) { showToast('书名不能为空', true); return; }
+  
+  // 更新表格中的数据
+  var old = currentDetailBook;
+  var found = false;
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var n = (cells[1].textContent || '').trim();
+    var a = (cells[2].textContent || '').trim();
+    if (n === old.name && a === old.author) {
+      cells[1].textContent = newName;
+      cells[2].textContent = newAuthor || '—';
+      found = true;
+    }
+  });
+  
+  // 更新 BOOK_DESC
+  if (newDesc) {
+    BOOK_DESC[newName] = newDesc;
+  }
+  
+  // 更新详情页显示
+  document.getElementById('detailName').textContent = newName;
+  var meta = '';
+  if (newAuthor) meta += '作者：' + esc(newAuthor) + '　';
+  if (old.category) meta += '<span class="cat-tag cat-' + old.category + '">' + old.category + '</span>';
+  document.getElementById('detailMeta').innerHTML = meta;
+  document.getElementById('detailDesc').textContent = newDesc || '暂无简介。';
+  
+  // 更新 URL hash
+  location.hash = 'detail=' + encodeURIComponent(newName) + '|' + encodeURIComponent(newAuthor||'') + '|' + encodeURIComponent(old.category||'');
+  currentDetailBook = { name: newName, author: newAuthor, category: old.category };
+  
+  // 隐藏编辑表单
+  document.getElementById('detailEditForm').style.display = 'none';
+  
+  // 刷新缓存
+  allBooksCache = null;
+  updateCounts();
+  showToast('已保存');
+};
+
+// ====== 图片灯箱 ======
+window.openLightbox = function(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('active');
+};
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('active');
+};
+
+// 图片加载失败时显示文件名
+document.addEventListener('error', function(e) {
+  if (e.target.tagName === 'IMG' && e.target.parentElement && e.target.parentElement.classList.contains('detail-img-box')) {
+    e.target.style.display = 'none';
+    var span = e.target.parentElement.querySelector('.detail-img-fallback');
+    if (span) span.style.display = 'block';
+  }
+}, true);
+
+// hash 路由
+function handleHash() {
+  var hash = location.hash.slice(1);
+  if (hash.startsWith('detail=')) {
+    var data = hash.slice(7);
+    var parts = data.split('|');
+    var name = decodeURIComponent(parts[0] || '');
+    var author = decodeURIComponent(parts[1] || '');
+    var category = decodeURIComponent(parts[2] || '');
+    renderDetail(name, author, category);
+  } else if (!hash) {
+    // 返回搜索首页
+    document.getElementById('detailView').classList.remove('active');
+    document.getElementById('fullView').classList.remove('active');
+    document.getElementById('searchView').classList.add('active');
+  }
+}
+
+window.addEventListener('hashchange', handleHash);
+// 初始加载时检查 hash
+if (location.hash) handleHash();
+
+// ====== 本地规则自动校对 ======
+function isSuspiciousText(text) {
+  if (!text || text === '—') return true;
+  // 含乱码字符
+  if (/[|{}\[\]<>\\^~`@#$%&*=+;:?!\u0000-\u001f]/.test(text)) return true;
+  // 纯数字/符号
+  if (/^[\d\s\.\,\-\+\/\(\)]+$/.test(text)) return true;
+  // 书名太短（< 2 个中文字符）
+  var cnChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  var enWords = (text.match(/[a-zA-Z]+/g) || []).length;
+  if (cnChars + enWords < 2) return true;
+  return false;
+}
+
+(function autoVerifyBooks() {
+  var count = 0;
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var name = (cells[1].textContent || '').trim();
+    var author = (cells[2].textContent || '').trim();
+
+    if (isSuspiciousText(name)) {
+      cells[1].style.color = '#d00';
+      cells[1].style.fontWeight = '600';
+      count++;
+    }
+    if (isSuspiciousText(author) && author !== '—') {
+      cells[2].style.color = '#d00';
+      count++;
+    }
+  });
+  console.log('自动校对：标记了 ' + count + ' 处可疑记录');
+})();
+
+// ====== 本月新增视图 ======
+window.showMonthNew = function() {
+  var now = new Date();
+  var thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var books = getCustomBooks().filter(function(b) { return b.addedAt && b.addedAt.startsWith(thisMonth); });
+  
+  var wrap = document.getElementById('monthNewResults');
+  var empty = document.getElementById('monthNewEmpty');
+  
+  if (books.length === 0) {
+    wrap.innerHTML = '';
+    wrap.style.display = 'none';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    wrap.style.display = 'block';
+    var html = '<div class="search-results">';
+    books.forEach(function(b) {
+      var desc = b.remark || BOOK_DESC[b.name] || '';
+      if (desc.length > 52) desc = desc.slice(0, 52) + '…';
+      html += '<a class="search-result-item" href="#detail=' + encodeURIComponent(b.name) + '|' + encodeURIComponent(b.author||'') + '|' + encodeURIComponent(b.category||'') + '" style="text-decoration:none;">' +
+        '<div class="result-top">' +
+          '<span class="title">' + esc(b.name) + '</span>' +
+          (b.author ? '<span class="author">' + esc(b.author) + '</span>' : '') +
+          catTagHtml(b.category) +
+        '</div>' +
+        (desc ? '<div class="desc">' + esc(desc) + '</div>' : '') +
+        '</a>';
+    });
+    html += '</div>';
+    wrap.innerHTML = html;
+  }
+  
+  document.getElementById('searchView').classList.remove('active');
+  document.getElementById('fullView').classList.remove('active');
+  document.getElementById('detailView').classList.remove('active');
+  document.getElementById('monthNewView').classList.add('active');
+  window.scrollTo(0, 0);
+};
 
 // ====== 首页搜索 ======
 var allBooksCache = null;
@@ -1976,20 +2380,55 @@ function doHomeSearch() {
   resultsEl.style.display = 'block';
   
   var html = '<div class="search-results">';
-  results.forEach(function(b) {
+  results.forEach(function(b, idx) {
     var desc = BOOK_DESC[b.name] || '';
     if (desc && desc.length > 52) desc = desc.slice(0, 52) + '…';
-    html += '<div class="search-result-item">' +
+    html += '<a class="search-result-item" href="#detail=' + encodeURIComponent(b.name) + '|' + encodeURIComponent(b.author||'') + '|' + encodeURIComponent(b.category||'') + '" style="text-decoration:none;">' +
       '<div class="result-top">' +
         '<span class="title">' + esc(b.name) + '</span>' +
         (b.author ? '<span class="author">' + esc(b.author) + '</span>' : '') +
         catTagHtml(b.category) +
       '</div>' +
       (desc ? '<div class="desc">' + esc(desc) + '</div>' : '') +
-      '</div>';
+      '</a>';
   });
+
+  // 仅一条结果时，下方展示来源图片
+  if (results.length === 1) {
+    var b = results[0];
+    var imgNos = [];
+    document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+      var cells = row.querySelectorAll('td');
+      if (cells.length < 3) return;
+      var n = (cells[1].textContent || '').trim();
+      var a = (cells[2].textContent || '').trim();
+      if (n === b.name && a === b.author) {
+        var ino = (cells[0].textContent || '').trim();
+        if (ino && imgNos.indexOf(ino) === -1) imgNos.push(ino);
+      }
+    });
+    if (imgNos.length > 0) {
+      html += '<div style="margin-top:12px;font-size:11px;color:var(--text-3);letter-spacing:.3px;">来源照片</div>';
+      html += '<div style="display:flex;gap:8px;margin-top:6px;">';
+      imgNos.forEach(function(no) {
+        var imgSrc = '图片/' + no + '.jpg';
+        html += '<div style="flex:1;">' +
+          '<div class="detail-img-box" style="aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:#f5f5f5;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="event.stopPropagation();event.preventDefault();openLightbox(\'' + imgSrc + '\')">' +
+            '<img src="' + imgSrc + '" alt="' + no + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' +
+            '<span class="detail-img-fallback" style="display:none;font-size:12px;color:#aaa;">' + no + '</span>' +
+          '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+  }
+
   html += '</div>';
   resultsEl.innerHTML = html;
+}
+
+function escAttr(s) {
+  return (s||'').replace(/\\/g,'\\\\').replace(/'/g,'\\x27').replace(/"/g,'\\x22');
 }
 
 function catTagHtml(cat) {
@@ -2024,17 +2463,18 @@ window.renderAddedBooks = function(query) {
     return;
   }
   
-  let html = '<tr><th>图号</th><th>书名</th><th>作者</th><th>分类</th><th>备注</th><th>操作</th></tr>';
+  let html = '<tr><th>图号</th><th>书名</th><th>作者</th><th>分类</th><th>简介</th><th>操作</th></tr>';
   let visibleCount = 0;
   
   books.forEach(function(book, idx) {
+    var coverHtml = book.cover ? '<img src="' + book.cover + '" style="width:40px;height:54px;object-fit:cover;border-radius:4px;display:block;">' : '<span style="font-size:10px;color:var(--text-3);">新增</span>';
     const text = (book.name + ' ' + book.author + ' ' + book.category + ' ' + book.remark).toLowerCase();
     const q = query || '';
     if (q && text.indexOf(q) === -1) {
-      html += '<tr style="display:none"><td class="img-no">新增</td><td>' + esc(book.name) + '</td><td>' + esc(book.author || '—') + '</td><td>' + catTag(book.category) + '</td><td>' + esc(book.remark || '') + '</td><td><button class="delete-btn" onclick="deleteBook(' + idx + ')" title="删除">×</button></td></tr>';
+      html += '<tr style="display:none"><td class="img-no">' + coverHtml + '</td><td>' + esc(book.name) + '</td><td>' + esc(book.author || '—') + '</td><td>' + catTag(book.category) + '</td><td>' + esc(book.remark || '') + '</td><td><button class="delete-btn" onclick="deleteBook(' + idx + ')" title="删除">×</button></td></tr>';
     } else {
       visibleCount++;
-      html += '<tr class="added-book-row"><td class="img-no">新增</td><td>' + esc(book.name) + '</td><td>' + esc(book.author || '—') + '</td><td>' + catTag(book.category) + '</td><td>' + esc(book.remark || '') + '</td><td><button class="delete-btn" onclick="deleteBook(' + idx + ')" title="删除">×</button></td></tr>';
+      html += '<tr class="added-book-row"><td class="img-no">' + coverHtml + '</td><td>' + esc(book.name) + '</td><td>' + esc(book.author || '—') + '</td><td>' + catTag(book.category) + '</td><td>' + esc(book.remark || '') + '</td><td><button class="delete-btn" onclick="deleteBook(' + idx + ')" title="删除">×</button></td></tr>';
     }
   });
   
@@ -2067,7 +2507,26 @@ window.deleteBook = function(idx) {
 // Open modal
 window.openModal = function() {
   document.getElementById('modalOverlay').classList.add('active');
-  document.getElementById('bookName').focus();
+  // 初始显示上传界面
+  document.getElementById('addBookUploadView').style.display = 'block';
+  document.getElementById('addBookEditView').style.display = 'none';
+  document.getElementById('addBookMenu').style.display = 'none';
+};
+
+// 打开上传菜单
+window.openAddBookMenu = function() {
+  var menu = document.getElementById('addBookMenu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+
+// 从相册选择
+window.pickFromLibrary = function() {
+  document.getElementById('imageInput').click();
+};
+
+// 拍照
+window.takePhoto = function() {
+  document.getElementById('cameraInput').click();
 };
 
 // Close modal
@@ -2087,13 +2546,38 @@ window.saveBook = function() {
   const author = document.getElementById('bookAuthor').value.trim();
   const category = document.getElementById('bookCategory').value;
   const remark = document.getElementById('bookRemark').value.trim();
-  
+  const cover = window._coverData || '';
+
+  // 检查自定义录入中是否已存在
   const books = getCustomBooks();
+  var dupCustom = books.find(function(b) {
+    return b.name === name;
+  });
+  if (dupCustom) {
+    showToast('《' + name + '》已在录入列表中，无需重复添加', true);
+    return;
+  }
+
+  // 检查原始书架中是否已存在
+  var dupOriginal = null;
+  var allOriginal = collectAllBooks();
+  for (var i = 0; i < allOriginal.length; i++) {
+    if (allOriginal[i].name === name) {
+      dupOriginal = allOriginal[i];
+      break;
+    }
+  }
+  if (dupOriginal) {
+    var msg = '《' + name + '》已在书架中（分区：' + dupOriginal.category + '）\n确定仍要添加吗？';
+    if (!confirm(msg)) return;
+  }
+
   books.push({
     name: name,
     author: author,
     category: category || '其他',
     remark: remark,
+    cover: cover,
     addedAt: new Date().toISOString().slice(0,10)
   });
   saveCustomBooks(books);
@@ -2111,6 +2595,13 @@ function resetForm() {
   document.getElementById('bookRemark').value = '';
   document.getElementById('ocrStatus').style.display = 'none';
   document.getElementById('imageInput').value = '';
+  // 清除封面
+  window._coverData = null;
+  document.getElementById('coverPreviewImg').style.display = 'none';
+  document.getElementById('coverPreviewImg').src = '';
+  var plusSpan = document.getElementById('coverPreview').querySelector('span');
+  if (plusSpan) plusSpan.style.display = 'block';
+  document.getElementById('coverInput').value = '';
 }
 
 function showToast(msg, isError) {
@@ -2144,6 +2635,17 @@ function updateCounts() {
   var sections = document.querySelectorAll('#fullView h2[id]').length;
   if (cardSections) cardSections.textContent = sections;
   
+  // 本月新增
+  var now = new Date();
+  var thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var monthNew = 0;
+  var books = getCustomBooks();
+  books.forEach(function(b) {
+    if (b.addedAt && b.addedAt.startsWith(thisMonth)) monthNew++;
+  });
+  var cardNewMonth = document.getElementById('cardNewMonth');
+  if (cardNewMonth) cardNewMonth.textContent = monthNew + ' 本';
+  
   var addedStats = document.getElementById('addedStats');
   if (custom > 0) {
     addedStats.textContent = ' + 手动录入 ' + custom + ' 条';
@@ -2159,31 +2661,57 @@ function renderAll() {
   window.renderAddedBooks('');
 }
 
+// ====== 自动分类匹配 ======
+function matchCategory(name) {
+  if (!name) return '';
+  // 从已有数据中查找这本书的分类
+  var books = collectAllBooks();
+  for (var i = 0; i < books.length; i++) {
+    if (books[i].name === name && books[i].category) return books[i].category;
+  }
+  return '';
+}
+
+// ====== 封面上传 ======
+window.handleCoverUpload = function(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('coverPreviewImg').src = e.target.result;
+    document.getElementById('coverPreviewImg').style.display = 'block';
+    document.getElementById('coverPreview').querySelector('span').style.display = 'none';
+    // 存储到全局变量供保存时使用
+    window._coverData = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
 // ====== OCR 图片识别 ======
 window.handleImageUpload = function(event) {
   const file = event.target.files[0];
   if (!file) return;
+  
+  // 切换到编辑视图
+  document.getElementById('addBookUploadView').style.display = 'none';
+  document.getElementById('addBookEditView').style.display = 'block';
   
   const statusEl = document.getElementById('ocrStatus');
   statusEl.style.display = 'block';
   statusEl.className = 'ocr-status';
   statusEl.textContent = '... 正在识别图片中的文字，请稍候';
   
-  // Read the image
   const reader = new FileReader();
   reader.onload = function(e) {
     const imgData = e.target.result;
-    
-    // Use Tesseract.js with Chinese+English recognition
     if (typeof Tesseract === 'undefined') {
       statusEl.textContent = 'OCR 引擎加载中，请稍后重试';
       statusEl.className = 'ocr-status error';
-      // Retry after a moment
       setTimeout(function() {
         if (typeof Tesseract !== 'undefined') {
           runOCR(imgData, statusEl);
         } else {
-          statusEl.textContent = 'OCR 引擎加载失败，请检查网络或使用手动录入';
+          statusEl.textContent = 'OCR 引擎加载失败，请手动填写';
         }
       }, 2000);
       return;
@@ -2233,6 +2761,15 @@ function runOCR(imgData, statusEl) {
     }
     if (author && !document.getElementById('bookAuthor').value) {
       document.getElementById('bookAuthor').value = author;
+    }
+    // 自动匹配分类和简介
+    if (bookName) {
+      var knownCat = matchCategory(bookName);
+      if (knownCat) document.getElementById('bookCategory').value = knownCat;
+      var knownDesc = BOOK_DESC[bookName] || '';
+      if (knownDesc && !document.getElementById('bookRemark').value) {
+        document.getElementById('bookRemark').value = knownDesc;
+      }
     }
     
     if (!bookName) {
@@ -2288,9 +2825,14 @@ document.addEventListener('keydown', function(e) {
     document.getElementById('homeSearchInput').focus();
   }
   // Escape to close modal
-  if (e.key === 'Escape' && document.getElementById('modalOverlay').classList.contains('active')) {
-    document.getElementById('modalOverlay').classList.remove('active');
-    resetForm();
+  if (e.key === 'Escape') {
+    if (document.getElementById('modalOverlay').classList.contains('active')) {
+      document.getElementById('modalOverlay').classList.remove('active');
+      resetForm();
+    }
+    if (document.getElementById('lightbox').classList.contains('active')) {
+      closeLightbox();
+    }
   }
 });
 
@@ -2651,7 +3193,79 @@ var BOOK_DESC = {
   '穿越计算机的迷雾':'李忠从底层原理出发通俗讲解计算机是如何工作的，数字电路与计算的本质',
   '暗时间':'刘未鹏关于思维和学习方法的博客文集，阐述利用碎片时间进行深度思考的方法',
   '离开的，留下的':'Elena Ferrante那不勒斯四部曲第三部，两个女人在婚姻和事业中的挣扎与成长',
-  '一日长于百年':'艾特玛托夫以中亚草原为背景的科幻寓言，火车与宇航的奇特交汇'
+  '一日长于百年':'艾特玛托夫以中亚草原为背景的科幻寓言，火车与宇航的奇特交汇',
+
+  // === 补充：更多书籍简介 ===
+  'DARK TIME':'可能为《暗时间》(Dark Time)的英文版或刘未鹏相关著作，讲述利用碎片化时间进行深度思考的方法',
+  '早上 10 点之前完成工作':'高效时间管理类书籍，倡导将重要工作放在早上精力最充沛时完成以提升效率',
+  'OFF 学':'大前研一的休闲哲学著作，提倡在工作之余学会如何玩、如何享受生活的人生理念',
+  '写作课':'系统讲解写作技巧和创作方法的实用指南，从构思到成文的完整路径',
+  '麦肯锡':'关于麦肯锡咨询公司方法论或文化的书籍，涵盖金字塔原理、MECE等结构化思维工具',
+  '如何达成目标':'基于心理学研究的目标达成方法论，介绍设定和实现个人与职业目标的有效策略',
+  '模仿的力量':'探讨模仿行为在社会学习和组织变革中的作用，揭示模仿如何驱动创新和传播',
+  '工作 DNA':'职场自我认知类书籍，帮助读者发现自己的工作风格和职业优势',
+  '小工作取胜':'倡导从小事做起、积少成多的工作哲学，小而持续的进步最终产生巨大影响',
+  '异类天赋':'探讨天赋与成功关系的心理学著作，分析非凡成就者背后的特殊能力和环境因素',
+  '又忙又好':'时间管理和效率提升类书籍，教你在忙碌中保持高质量工作和生活平衡',
+  '遇见未知':'个人成长类书籍，探索自我认知和心灵成熟的道路',
+  '浪潮':'以德国高中社会实验为背景的小说，讲述一个班级如何演变为法西斯式团体，警示集体主义危险',
+  '万事有定':'探讨命运的文学作品或哲学思考，可能围绕宿命论与自由意志的辩论展开',
+  '猫的记':'推测为关于猫的文学作品或散文集，记录与猫相关的故事和感悟',
+  '覃化':'推测为《演化》相关书籍，讲述生物进化的历史和科学原理',
+  '风中学':'推测为学术或教育类书籍，可能涉及中国传统学术思想的研究',
+  '钱穆·中国历史':'钱穆的中国历史研究著作，以独特视角系统梳理中华文明发展脉络',
+  '30 岁前别结婚':'现代女性婚恋观指南，鼓励女性先实现自我价值再考虑婚姻',
+  '巴菲特致股东的信':'沃伦·巴菲特历年来写给伯克希尔股东的信件合集，浓缩了价值投资的核心理念',
+  '穷查理年鉴':'查理·芒格引用的本杰明·富兰克林经典，充满智慧格言和人生道理的警句集',
+  '事实':'Hans Rosling以数据驱散全球十大认知偏见，用事实告诉你世界比你想象的好',
+  '硅谷之火':'记录个人电脑革命起源的经典著作，讲述了MITS到苹果的发展历程',
+  '说谎者的扑克牌':'Michael Lewis的华尔街处女作，以所罗门兄弟公司为背景揭示债券市场的疯狂',
+  '门口的野蛮人':'记录KKR收购RJR Nabisco的经典商业案例，史上最大杠杆收购的惊险内幕',
+  '穷爸爸富爸爸':'Robert Kiyosaki以两个爸爸的对比阐述财商教育，改变全球数千万人的理财观念',
+  '小狗钱钱':'德国作家写的儿童理财启蒙书，用小故事生动讲述储蓄投资的基础知识',
+  '股票大作手回忆录':'Edwin Lefevre记录的Jesse Livermore传奇交易生涯，技术分析派必读经典',
+  '聪明的投资者':'Benjamin Graham的价值投资奠基之作，巴菲特称其为“有史以来最好的投资书”',
+  '证券分析':'Graham & Dodd的投资分析经典，系统阐述价值投资的方法论和安全边际原则',
+  '巴菲特之道':'系统研究巴菲特投资策略的著作，总结了12条投资准则和企业分析方法',
+  '怎样选择成长股':'Philip Fisher的投资经典，提出“闲聊法”调研和15条选股原则',
+  '漫步华尔街':'Burton Malkiel的随机漫步理论经典，论证市场有效性和指数投资优势',
+  '格雷厄姆之道':'中国投资人对格雷厄姆价值投资思想的本土化解读和应用',
+  '中国是部金融史':'从金融和货币角度重新解读中国历史变迁的独特视角著作',
+  '游戏改变世界':'Jane McGonigal论证游戏化如何解决现实世界问题，挖掘游戏的正面力量',
+  '生而不凡':'关于个人成长和自我突破的励志书籍，鼓励打破常规追求卓越人生',
+  '重来':'Jason Fried的极简创业方法论，挑战传统商业教条，倡导精简高效的工作方式',
+  '这就是OKR':'John Doerr系统介绍OKR目标管理方法，来自Intel和Google的实战经验',
+  '让大象飞':'硅谷创业孵化器创始人分享初创企业的精益创新方法论',
+  '任天堂哲学':'解析任天堂百年创新的经营哲学，从花牌作坊到游戏帝国的独特方法论',
+  '华杉讲透孙子兵法':'华杉将兵法智慧与现代商业战略结合，逐篇解读孙子兵法核心思想',
+  '影响力方程式':'扩展Cialdini影响力理论的新作，进一步探究说服的深层机制',
+  '抢占心智':'分众传媒江南春讲述定位理论在中国市场的实战应用',
+  '增长黑客':'Sean Ellis提出的用数据驱动和低成本实验实现用户增长的方法论',
+  '深度工作':'Cal Newport提出在碎片化时代深耕专注力的重要性，系统方法创造高价值产出',
+  '时间的朋友':'得到App罗振宇的跨年演讲文集，讨论时间、认知和终身学习',
+  '小岛经济学':'用寓言故事形式通俗讲解经济学基本原理，从捕鱼故事延伸到现代金融体系',
+  '一课经济学':'Henry Hazlitt的经济学入门经典，用一章讲一个谬误，通俗剖析常见经济误解',
+  '魔鬼经济学':'Steven Levitt用经济学方法探索生活背后的隐藏真相，相扑作弊到毒贩财务',
+  '妙趣横生的国债':'以轻松笔触解释国债原理和对普通人的影响',
+  '战胜一切市场的人':'Edward Thorp的自传，量化投资之父讲述从赌场到华尔街的传奇经历',
+  '战后日本经济史':'野口悠纪雄从个人经历讲述日本经济从废墟到泡沫再到停滞的完整历程',
+  '华尔街之狼':'Jordan Belfort的疯狂自传，讲述在华尔街靠欺诈暴富又跌落深渊的真实故事',
+  '说谎者的扑克牌':'描述所罗门兄弟公司债券交易部内部故事的经典华尔街纪实',
+  '百年孤独':'加西亚·马尔克斯的魔幻现实主义巨著，布恩迪亚家族七代在马孔多的兴衰史诗',
+  '霍乱时期的爱情':'马尔克斯讲述跨越半个多世纪的爱情故事，穷尽爱情的所有可能',
+  '挪威的森林':'村上春树的青春恋爱小说，以60年代东京为背景讲述爱、死亡和成长',
+  '围城':'钱锺书的经典讽刺小说，以幽默辛辣笔触描绘知识分子的婚姻和人生困境',
+  '活着':'余华以福贵一家命运勾勒中国近代历史苦难的巅峰之作',
+  '三体':'刘慈欣的科幻三部曲，从文革到宇宙末日，中国科幻的最高成就',
+  '追风筝的人':'胡赛尼讲述阿富汗两个少年的友谊与背叛故事，关于救赎的人性之作',
+  '月亮和六便士':'毛姆以高更为原型的经典小说，一个证券经纪人抛弃一切追逐艺术梦想',
+  '了不起的盖茨比':'菲茨杰拉德的美国梦经典，纸醉金迷背后是无法触及的绿光与幻灭',
+  '局外人':'加缪的存在主义经典，默尔索因“在母亲葬礼上没有哭”而被社会审判',
+  '黑客与画家':'Paul Graham的硅谷创业文集，用黑客思维解读技术、设计和商业',
+  '禅与摩托车维修艺术':'Robert Pirsig的一次横跨美国摩托车之旅，融合哲学、禅意和生活智慧',
+  '牧羊少年奇幻之旅':'保罗·柯艾略的寓言小说，圣地亚哥追寻宝藏的旅程即是天命本身',
+  '动物农场':'奥威尔的政治寓言，一场农场革命走向极权统治的讽喻经典',
+  '杀死一只知更鸟':'Harper Lee的成长小说经典，通过小女孩视角讲述美国南方的种族与正义'
 };
 
 // 为备注栏补充内容简介
@@ -2712,6 +3326,28 @@ function escHtml(s) {
   grid.innerHTML = html;
 })();
 
+// ====== 表格书名/作者点击跳转详情页 ======
+document.addEventListener('click', function(e) {
+  var td = e.target.closest('td');
+  if (!td) return;
+  if (!td.closest('#fullView table') || td.closest('#addedBooksTable')) return;
+  var cells = td.parentElement.querySelectorAll('td');
+  var colIndex = Array.prototype.indexOf.call(cells, td);
+  // 只处理第2列(书名)和第3列(作者)
+  if (colIndex !== 1 && colIndex !== 2) return;
+  // 排除 unclear 单元格
+  if (td.classList.contains('unclear')) return;
+  // 排除 altKey 校验标记
+  if (e.altKey) return;
+
+  var name = (cells[1].textContent || '').trim();
+  var author = (cells[2].textContent || '').trim();
+  if (!name) return;
+  // 跳转到详情页
+  location.hash = 'detail=' + encodeURIComponent(name) + '|' + encodeURIComponent(author||'') + '|';
+  handleHash();
+});
+
 // ====== 初始化：给所有表格添加列宽分组 ======
 document.querySelectorAll('table').forEach(function(table) {
   if (table.querySelector('colgroup')) return; // already has colgroup
@@ -2726,6 +3362,72 @@ document.querySelectorAll('table').forEach(function(table) {
     colgroup.innerHTML = '<col class="col-no"><col class="col-name"><col class="col-author"><col class="col-cat"><col class="col-remark">';
   }
   table.insertBefore(colgroup, table.firstChild);
+});
+
+// ====== 去重：书名+作者完全相同则只保留第一条 ======
+(function dedupBooks() {
+  var seen = {};
+  var removed = 0;
+  document.querySelectorAll('#fullView table').forEach(function(table) {
+    table.querySelectorAll('tr:not(:first-child)').forEach(function(row) {
+      var cells = row.querySelectorAll('td');
+      if (cells.length < 3) return;
+      var name = (cells[1].textContent || '').trim();
+      var author = (cells[2].textContent || '').trim();
+      var key = name + '||' + author;
+      if (name && author && seen[key]) {
+        row.remove();
+        removed++;
+      } else if (name && author) {
+        seen[key] = true;
+      }
+    });
+  });
+  if (removed > 0) console.log('去重：移除了 ' + removed + ' 条重复记录');
+})();
+
+// ====== 豆瓣校验标记 ======
+var VERIFIED_KEY = 'bookshelf_verified';
+function getVerified() {
+  try { return JSON.parse(localStorage.getItem(VERIFIED_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function saveVerified(v) {
+  localStorage.setItem(VERIFIED_KEY, JSON.stringify(v));
+}
+(function markUnverified() {
+  var verified = getVerified();
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var name = (cells[1].textContent || '').trim();
+    var author = (cells[2].textContent || '').trim();
+    var key = name + '||' + author;
+    if (!verified[key]) {
+      row.classList.add('unverified');
+    }
+  });
+})();
+// 点击书名列切换校验状态
+document.addEventListener('click', function(e) {
+  if (e.altKey && e.target.closest('#fullView') && e.target.closest('td')) {
+    var td = e.target.closest('td');
+    var row = td.parentElement;
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3 || row.closest('#addedBooksTable')) return;
+    var name = (cells[1].textContent || '').trim();
+    var author = (cells[2].textContent || '').trim();
+    var key = name + '||' + author;
+    var verified = getVerified();
+    if (verified[key]) {
+      delete verified[key];
+      row.classList.add('unverified');
+    } else {
+      verified[key] = true;
+      row.classList.remove('unverified');
+    }
+    saveVerified(verified);
+  }
 });
 
 renderAll();
