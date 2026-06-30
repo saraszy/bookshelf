@@ -277,6 +277,10 @@
       <span class="home-browse-arrow">→</span>
     </button>
 
+    <div style="text-align:center;margin-bottom:8px;">
+      <a href="javascript:void(0)" onclick="exportUpdatedHTML()" style="font-size:12px;color:var(--text-3);text-decoration:underline;">下载最新版 HTML（含编辑内容）</a>
+    </div>
+
 
   </div>
   <div id="searchResults" class="results-wrap" style="display:none;"></div>
@@ -2050,9 +2054,105 @@
   </div>
 </div>
 
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/1.7.1/cloudbase.full.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 (function(){
+// ====== CloudBase 初始化（失败不影响页面使用） ======
+var _cloudReady = false;
+var _collection = null;
+try {
+  var app = (typeof cloudbase !== 'undefined') ? cloudbase.init({ env: 'bookshelf4532-d2gyqhc5926b3f22b' }) : null;
+  if (app) {
+    var db = app.database();
+    _collection = db.collection('book_edits');
+    var auth = app.auth({ persistence: 'local' });
+    auth.signInAnonymously().then(function() { _cloudReady = true; }).catch(function() {});
+  }
+} catch(e) { console.warn('CloudBase init failed:', e); }
+var db = app.database();
+var _collection = db.collection('book_edits');
+
+// ====== 云端数据操作（替换 localStorage） ======
+function cloudGet(key) {
+  if (!_collection) return Promise.resolve(null);
+  return _collection.where({ _key: key }).get().then(function(res) {
+    if (res.data && res.data.length > 0) return res.data[0].value;
+    return null;
+  }).catch(function() { return null; });
+}
+function cloudSet(key, value) {
+  if (!_collection) return Promise.resolve(null);
+  return _collection.where({ _key: key }).get().then(function(res) {
+    if (res.data && res.data.length > 0) {
+      return _collection.doc(res.data[0]._id).update({ value: value });
+    } else {
+      return _collection.add({ _key: key, value: value });
+    }
+  }).catch(function() {});
+}
+
+// ====== 桥接函数：云端优先，localStorage 兜底 ======
+function getBookEdits() {
+  var local = null;
+  try { local = JSON.parse(localStorage.getItem(BOOK_EDITS_KEY) || '{}'); } catch(e) { local = {}; }
+  return local;
+}
+function saveBookEditsAsync(v) {
+  localStorage.setItem(BOOK_EDITS_KEY, JSON.stringify(v));
+  cloudSet('book_edits', v);
+}
+function saveBookEdits(v) {
+  localStorage.setItem(BOOK_EDITS_KEY, JSON.stringify(v));
+  saveBookEditsAsync(v);
+}
+function getSavedDesc() {
+  var local = null;
+  try { local = JSON.parse(localStorage.getItem(BOOK_DESC_KEY) || '{}'); } catch(e) { local = {}; }
+  return local;
+}
+function saveSavedDesc(v) {
+  localStorage.setItem(BOOK_DESC_KEY, JSON.stringify(v));
+  cloudSet('book_desc', v);
+}
+
+// 页面加载时从云端同步
+(function syncFromCloud() {
+  cloudGet('book_edits').then(function(val) {
+    if (val) { localStorage.setItem(BOOK_EDITS_KEY, JSON.stringify(val)); applyCloudEdits(val); }
+  });
+  cloudGet('book_desc').then(function(val) {
+    if (val) { localStorage.setItem(BOOK_DESC_KEY, JSON.stringify(val)); mergeCloudDesc(val); }
+  });
+  cloudGet('book_verified').then(function(val) {
+    if (val) { localStorage.setItem(VERIFIED_KEY, JSON.stringify(val)); }
+  });
+  cloudGet('custom_books').then(function(val) {
+    if (val) { localStorage.setItem(STORAGE_KEY, JSON.stringify(val)); }
+  });
+})();
+
+function applyCloudEdits(edits) {
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var name = (cells[1].textContent || '').trim();
+    var author = (cells[2].textContent || '').trim();
+    var key = name + '||' + author;
+    if (edits[key]) {
+      cells[1].textContent = edits[key].name;
+      cells[2].textContent = edits[key].author && edits[key].author !== '—' ? edits[key].author : '暂无作者';
+      cells[2].classList.remove('unclear');
+      row.classList.remove('unverified');
+      row.querySelectorAll('.unclear').forEach(function(c) { c.classList.remove('unclear'); });
+    }
+  });
+}
+function mergeCloudDesc(desc) {
+  Object.keys(desc).forEach(function(k) { BOOK_DESC[k] = desc[k]; });
+}
+
+
 // ====== 视图切换 ======
 window.showFullView = function() {
   document.getElementById('searchView').classList.remove('active');
@@ -2668,6 +2768,7 @@ function getCustomBooks() {
 
 function saveCustomBooks(books) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+  cloudSet('custom_books', books);
 }
 
 // Render added books
@@ -3015,6 +3116,52 @@ function runOCR(imgData, statusEl) {
 }
 
 // ====== 导出功能 ======
+// 下载最新版 HTML（含所有编辑内容）
+window.exportUpdatedHTML = function() {
+  // 1. 先应用所有编辑到 DOM
+  var edits = getBookEdits();
+  document.querySelectorAll('#fullView table tr:not(:first-child)').forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+    var name = (cells[1].textContent || '').trim();
+    var author = (cells[2].textContent || '').trim();
+    var key = name + '||' + author;
+    if (edits[key]) {
+      cells[1].textContent = edits[key].name;
+      cells[2].textContent = edits[key].author && edits[key].author !== '—' ? edits[key].author : '暂无作者';
+      cells[2].classList.remove('unclear');
+      row.classList.remove('unverified');
+      row.querySelectorAll('.unclear').forEach(function(c) { c.classList.remove('unclear'); });
+      // 更新 BOOK_DESC
+      if (edits[key].desc) BOOK_DESC[edits[key].name] = edits[key].desc;
+    }
+  });
+  // 2. 序列化 BOOK_DESC 嵌入 HTML
+  var descJson = JSON.stringify(BOOK_DESC);
+  var descScript = '<script>window._savedDesc=' + descJson + ';' +
+    'Object.keys(window._savedDesc).forEach(function(k){if(!BOOK_DESC[k])BOOK_DESC[k]=window._savedDesc[k];});<\\/script>';
+  // 3. 序列化 edits 嵌入 HTML
+  var editsJson = JSON.stringify(edits);
+  var editsScript = '<script>window._savedEdits=' + editsJson + ';' +
+    'localStorage.setItem("' + BOOK_EDITS_KEY + '",JSON.stringify(window._savedEdits));<\\/script>';
+  // 4. 序列化 verified 嵌入 HTML
+  var verified = getVerified();
+  var verifiedScript = '<script>localStorage.setItem("' + VERIFIED_KEY + '",\'' + JSON.stringify(verified).replace(/'/g, "\\'") + '\');<\\/script>';
+  // 5. 获取完整 HTML
+  var html = document.documentElement.outerHTML;
+  // 6. 在 </body> 前插入脚本
+  html = html.replace('</body>', descScript + editsScript + verifiedScript + '</body>');
+  // 7. 触发下载
+  var blob = new Blob([html], {type: 'text/html'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 已下载最新版 index.html（含编辑内容）');
+};
+
 window.exportData = function() {
   // Collect all books
   const allBooks = [];
@@ -3625,6 +3772,7 @@ function getVerified() {
 }
 function saveVerified(v) {
   localStorage.setItem(VERIFIED_KEY, JSON.stringify(v));
+  cloudSet('book_verified', v);
 }
 
 // ====== 编辑数据持久化 ======
